@@ -7,7 +7,7 @@ def less_repositories():
   npm_install('less', version='2.7.2')
 
 def _collect_deps(ctx):
-  deps = set(order='compile')
+  deps = depset(order='postorder')
   for dep in ctx.attr.deps:
     deps += dep.transitive_less
   return deps
@@ -17,7 +17,7 @@ def _less_library(ctx):
   transitive_less = _collect_deps(ctx) + LessFiles.filter(ctx.files.srcs)
 
   return struct(
-    files = set(),
+    files = depset(),
     transitive_less = transitive_less,
   )
 
