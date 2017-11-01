@@ -4,7 +4,11 @@ LessFiles = FileType(['.less', '.css'])
 
 
 def less_repositories():
-  npm_install('less', version='2.7.2')
+  npm_install(
+    name = 'less',
+    version = '2.7.2',
+    sha256 = 'd57e3f45aa5c7d097728eefbd2fed91b040591b072dece36902a176db777d738',
+  )
 
 def _collect_deps(ctx):
   deps = depset(order='postorder')
