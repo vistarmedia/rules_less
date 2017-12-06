@@ -1,8 +1,8 @@
-load('@io_bazel_rules_js//js:def.bzl', 'js_binary')
+load("@io_bazel_rules_js//js:def.bzl", "js_binary")
 
 js_binary(
-  name = 'lessc',
-  src  = 'lessc.js',
-  deps = ['@less//:lib'],
-  visibility = ['//visibility:public'],
+    name = "lessc",
+    src = "lessc.js",
+    visibility = ["//visibility:public"],
+    deps = ["@less//:lib"],
 )
