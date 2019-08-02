@@ -1,6 +1,6 @@
-load('@io_bazel_rules_js//js:def.bzl', 'npm_install')
+load('@com_vistarmedia_rules_js//js:def.bzl', 'npm_install')
 
-LessFiles = FileType(['.less', '.css'])
+LessFiles = ['.less', '.css']
 
 
 def less_repositories():
@@ -18,11 +18,13 @@ def _collect_deps(ctx):
 
 
 def _less_library(ctx):
-  transitive_less = _collect_deps(ctx) + LessFiles.filter(ctx.files.srcs)
+  less_srcs = [
+    f for f in ctx.files.srcs if '.' + f.extension in LessFiles
+  ]
 
   return struct(
     files = depset(),
-    transitive_less = transitive_less,
+    transitive_less = _collect_deps(ctx) + less_srcs,
   )
 
 
@@ -67,7 +69,7 @@ less_binary = rule(
     '_node': attr.label(
       executable = True,
       cfg        = 'host',
-      default    = Label('@io_bazel_rules_js//js/toolchain:node')),
+      default    = Label('@com_vistarmedia_rules_js//js/toolchain:node')),
   },
   outputs = {
     'css': '%{name}.css',
