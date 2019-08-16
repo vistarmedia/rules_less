@@ -1,6 +1,7 @@
 load('@com_vistarmedia_rules_js//js:def.bzl', 'npm_install')
 
 LessFiles = ['.less', '.css']
+LessLibrary = provider(fields=['transitive_srcs'])
 
 
 def less_repositories():
@@ -10,41 +11,36 @@ def less_repositories():
     sha256 = 'd57e3f45aa5c7d097728eefbd2fed91b040591b072dece36902a176db777d738',
   )
 
-def _collect_deps(ctx):
-  deps = depset(order='postorder')
-  for dep in ctx.attr.deps:
-    deps += dep.transitive_less
-  return deps
-
-
 def _less_library(ctx):
-  less_srcs = [
-    f for f in ctx.files.srcs if '.' + f.extension in LessFiles
+  return [
+    LessLibrary(
+      transitive_srcs = depset(
+        direct = ctx.files.srcs,
+        transitive = [
+          dep[LessLibrary].transitive_srcs for dep in ctx.attr.deps
+        ],
+      ),
+    ),
   ]
 
-  return struct(
-    files = depset(),
-    transitive_less = _collect_deps(ctx) + less_srcs,
-  )
-
-
 def _less_binary(ctx):
-  transitive_less = _collect_deps(ctx)
+  args = ctx.actions.args()
+  args.add_all(ctx.files.srcs)
+  args.add(ctx.outputs.css.path)
 
-  args = [less.path for less in ctx.files.srcs]
-  args += [ctx.outputs.css.path]
-
-  ctx.action(
-    inputs     = list(transitive_less) + list(ctx.files.srcs) + \
-                 [ctx.executable._node],
+  ctx.actions.run(
+    inputs = depset(
+      direct = ctx.files.srcs + [ctx.executable._node],
+      transitive = [dep[LessLibrary].transitive_srcs for dep in ctx.attr.deps],
+    ),
     outputs    = [ctx.outputs.css],
     executable = ctx.executable._lessc,
-    arguments  = args,
+    arguments  = [args],
     mnemonic   = 'CompileLess',
   )
 
 srcs_attr = attr.label_list(allow_files=LessFiles)
-deps_attr = attr.label_list(providers=['transitive_less'])
+deps_attr = attr.label_list(providers=[LessLibrary])
 
 
 less_library = rule(
