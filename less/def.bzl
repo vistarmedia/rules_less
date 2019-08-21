@@ -30,11 +30,12 @@ def _less_binary(ctx):
 
   ctx.actions.run(
     inputs = depset(
-      direct = ctx.files.srcs + [ctx.executable._node],
+      direct = ctx.files.srcs,
       transitive = [dep[LessLibrary].transitive_srcs for dep in ctx.attr.deps],
     ),
     outputs    = [ctx.outputs.css],
     executable = ctx.executable._lessc,
+    tools      = [ctx.executable._node],
     arguments  = [args],
     mnemonic   = 'CompileLess',
   )
