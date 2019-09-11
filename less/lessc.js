@@ -1,1 +1,1 @@
-require('less/bin/lessc');
+require("less/bin/lessc");
