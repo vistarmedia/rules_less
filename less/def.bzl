@@ -25,8 +25,6 @@ def _less_library(ctx):
 
 def _less_binary(ctx):
     args = ctx.actions.args()
-    args.add("--include-path=%s" % (ctx.bin_dir.path))
-    args.add("--include-path=%s" % (ctx.genfiles_dir.path))
     args.add_all(ctx.files.srcs)
     args.add(ctx.outputs.css.path)
 
